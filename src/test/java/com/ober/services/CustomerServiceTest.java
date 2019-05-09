@@ -17,8 +17,10 @@ import static org.mockito.Mockito.*;
 public class CustomerServiceTest {
 
     private static final Long ID = 1L;
-    private static final String FIRST_NAME = "Bob";
-    private static final String LAST_NAME = "Test";
+    private static final String FIRST_NAME_1 = "Bob";
+    private static final String LAST_NAME_1 = "Test";
+    private static final String FIRST_NAME_2 = "Sam";
+    private static final String LAST_NAME_2 = "Axe";
 
     CustomerService customerService;
 
@@ -52,8 +54,8 @@ public class CustomerServiceTest {
         Customer customer = Customer
                 .builder()
                 .id(ID)
-                .firstName(FIRST_NAME)
-                .lastName(LAST_NAME)
+                .firstName(FIRST_NAME_1)
+                .lastName(LAST_NAME_1)
                 .build();
 
         // when
@@ -63,15 +65,15 @@ public class CustomerServiceTest {
         // then
         assertNotNull(customerReturned);
         assertEquals(ID, customerReturned.getId());
-        assertEquals(FIRST_NAME, customerReturned.getFirstName());
-        assertEquals(LAST_NAME, customerReturned.getLastName());
+        assertEquals(FIRST_NAME_1, customerReturned.getFirstName());
+        assertEquals(LAST_NAME_1, customerReturned.getLastName());
         verify(customerRepository).findById(anyLong());
     }
 
     @Test
     public void createNewCustomer() throws Exception {
         // given
-        Customer customer = Customer.builder().id(ID).firstName(FIRST_NAME).lastName(LAST_NAME).build();
+        Customer customer = Customer.builder().id(ID).firstName(FIRST_NAME_1).lastName(LAST_NAME_1).build();
 
         // when
         when(customerRepository.save(any())).thenReturn(customer);
@@ -80,8 +82,29 @@ public class CustomerServiceTest {
         // then
         assertNotNull(customerReturned);
         assertEquals(ID, customerReturned.getId());
-        assertEquals(FIRST_NAME, customerReturned.getFirstName());
-        assertEquals(LAST_NAME, customerReturned.getLastName());
+        assertEquals(FIRST_NAME_1, customerReturned.getFirstName());
+        assertEquals(LAST_NAME_1, customerReturned.getLastName());
         verify(customerRepository).save(any(Customer.class));
     }
+
+    @Test
+    public void updateCustomer() throws Exception {
+        // given
+        Customer customer = Customer.builder()
+                .id(ID)
+                .firstName(FIRST_NAME_1)
+                .lastName(LAST_NAME_1)
+                .build();
+
+        // when
+        when(customerRepository.save(any())).thenReturn(customer);
+        Customer savedCustomer = customerService.saveCustomer(ID, customer);
+
+        assertNotNull(savedCustomer);
+        assertEquals(ID, savedCustomer.getId());
+        assertEquals(FIRST_NAME_1, savedCustomer.getFirstName());
+        assertEquals(LAST_NAME_1, savedCustomer.getLastName());
+        verify(customerRepository).save(any(Customer.class));
+    }
+
 }
