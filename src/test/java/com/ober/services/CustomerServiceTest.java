@@ -43,6 +43,7 @@ public class CustomerServiceTest {
 
         // then
         assertEquals(3, customersReturned.size());
+        verify(customerRepository).findAll();
     }
 
     @Test
@@ -64,5 +65,23 @@ public class CustomerServiceTest {
         assertEquals(ID, customerReturned.getId());
         assertEquals(FIRST_NAME, customerReturned.getFirstName());
         assertEquals(LAST_NAME, customerReturned.getLastName());
+        verify(customerRepository).findById(anyLong());
+    }
+
+    @Test
+    public void createNewCustomer() throws Exception {
+        // given
+        Customer customer = Customer.builder().id(ID).firstName(FIRST_NAME).lastName(LAST_NAME).build();
+
+        // when
+        when(customerRepository.save(any())).thenReturn(customer);
+        Customer customerReturned = customerService.createNewCustomer(customer);
+
+        // then
+        assertNotNull(customerReturned);
+        assertEquals(ID, customerReturned.getId());
+        assertEquals(FIRST_NAME, customerReturned.getFirstName());
+        assertEquals(LAST_NAME, customerReturned.getLastName());
+        verify(customerRepository).save(any(Customer.class));
     }
 }

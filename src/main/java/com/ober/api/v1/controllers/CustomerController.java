@@ -3,13 +3,12 @@ package com.ober.api.v1.controllers;
 import com.ober.api.v1.mappers.CustomerMapper;
 import com.ober.api.v1.model.CustomerDTO;
 import com.ober.api.v1.model.CustomerListDTO;
+import com.ober.domain.Customer;
 import com.ober.services.CustomerService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -42,5 +41,14 @@ public class CustomerController {
     public ResponseEntity<CustomerDTO> getCustomerById(@PathVariable Long id) {
         CustomerDTO customer = customerMapper.customerToCustomerDTO(customerService.getCustomerById(id));
         return new ResponseEntity<>(customer, HttpStatus.OK);
+    }
+
+    @PostMapping
+    public ResponseEntity<CustomerDTO> createNewCustomer(@RequestBody CustomerDTO customerDTO) {
+        Customer savedCustomer = customerService.createNewCustomer(customerMapper.customerDtoToCustomer(customerDTO));
+        return new ResponseEntity<>(
+                customerMapper.customerToCustomerDTO(savedCustomer),
+                HttpStatus.CREATED
+        );
     }
 }
