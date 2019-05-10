@@ -14,4 +14,6 @@ public interface CustomerService {
 
     Customer saveCustomer(Long id, Customer customer);
 
+    Customer patchCustomer(Long id, Customer customer);
+
 }
