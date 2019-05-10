@@ -107,4 +107,13 @@ public class CustomerServiceTest {
         verify(customerRepository).save(any(Customer.class));
     }
 
+    @Test
+    public void deleteCustomerById() throws Exception {
+        Long id = 1L;
+
+        customerService.deleteCustomerById(id);
+
+        verify(customerRepository, times(1)).deleteById(anyLong());
+    }
+
 }
