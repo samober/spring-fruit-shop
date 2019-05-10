@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Controller
+@RestController
 @RequestMapping(CustomerController.BASE_URL)
 public class CustomerController {
 
@@ -28,55 +28,48 @@ public class CustomerController {
     }
 
     @GetMapping
-    public ResponseEntity<CustomerListDTO> getAllCustomers() {
+    @ResponseStatus(HttpStatus.OK)
+    public CustomerListDTO getAllCustomers() {
         List<CustomerDTO> customers = customerService.getAllCustomers()
                 .stream()
                 .map(customerMapper::customerToCustomerDTO)
                 .map(this::addCustomerUrl)
                 .collect(Collectors.toList());
-        return new ResponseEntity<>(
-                new CustomerListDTO(customers),
-                HttpStatus.OK
-        );
+        return new CustomerListDTO(customers);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CustomerDTO> getCustomerById(@PathVariable Long id) {
+    @ResponseStatus(HttpStatus.OK)
+    public CustomerDTO getCustomerById(@PathVariable Long id) {
         CustomerDTO customer = customerMapper.customerToCustomerDTO(customerService.getCustomerById(id));
-        return new ResponseEntity<>(addCustomerUrl(customer), HttpStatus.OK);
+        return addCustomerUrl(customer);
     }
 
     @PostMapping
-    public ResponseEntity<CustomerDTO> createNewCustomer(@RequestBody CustomerDTO customerDTO) {
+    @ResponseStatus(HttpStatus.CREATED)
+    public CustomerDTO createNewCustomer(@RequestBody CustomerDTO customerDTO) {
         Customer savedCustomer = customerService.createNewCustomer(customerMapper.customerDtoToCustomer(customerDTO));
-        return new ResponseEntity<>(
-                addCustomerUrl(customerMapper.customerToCustomerDTO(savedCustomer)),
-                HttpStatus.CREATED
-        );
+        return addCustomerUrl(customerMapper.customerToCustomerDTO(savedCustomer));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<CustomerDTO> updateCustomer(@RequestBody CustomerDTO customerDTO, @PathVariable Long id) {
+    @ResponseStatus(HttpStatus.OK)
+    public CustomerDTO updateCustomer(@RequestBody CustomerDTO customerDTO, @PathVariable Long id) {
         Customer savedCustomer = customerService.saveCustomer(id, customerMapper.customerDtoToCustomer(customerDTO));
-        return new ResponseEntity<>(
-                addCustomerUrl(customerMapper.customerToCustomerDTO(savedCustomer)),
-                HttpStatus.OK
-        );
+        return addCustomerUrl(customerMapper.customerToCustomerDTO(savedCustomer));
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<CustomerDTO> patchCustomer(@RequestBody CustomerDTO customerDTO, @PathVariable Long id) {
+    @ResponseStatus(HttpStatus.OK)
+    public CustomerDTO patchCustomer(@RequestBody CustomerDTO customerDTO, @PathVariable Long id) {
         Customer updatedCustomer = customerService.patchCustomer(id, customerMapper.customerDtoToCustomer(customerDTO));
-        return new ResponseEntity<>(
-                addCustomerUrl(customerMapper.customerToCustomerDTO(updatedCustomer)),
-                HttpStatus.OK
-        );
+        return addCustomerUrl(customerMapper.customerToCustomerDTO(updatedCustomer));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteCustomer(@PathVariable Long id) {
+    @ResponseStatus(HttpStatus.OK)
+    public void deleteCustomer(@PathVariable Long id) {
         customerService.deleteCustomerById(id);
-        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     private CustomerDTO addCustomerUrl(CustomerDTO customerDTO) {
