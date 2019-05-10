@@ -2,6 +2,7 @@ package com.ober.services;
 
 import com.ober.domain.Customer;
 import com.ober.repositories.CustomerRepository;
+import com.ober.services.exceptions.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,7 +23,7 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public Customer getCustomerById(Long id) {
-        return customerRepository.findById(id).orElse(null);
+        return customerRepository.findById(id).orElseThrow(ResourceNotFoundException::new);
     }
 
     @Override
@@ -52,7 +53,7 @@ public class CustomerServiceImpl implements CustomerService {
 
            return customerRepository.save(foundCustomer);
 
-        }).orElseThrow(RuntimeException::new); // todo implement better error handling
+        }).orElseThrow(ResourceNotFoundException::new); // todo implement better error handling
     }
 
     @Override

@@ -2,6 +2,7 @@ package com.ober.services;
 
 import com.ober.domain.Customer;
 import com.ober.repositories.CustomerRepository;
+import com.ober.services.exceptions.ResourceNotFoundException;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -70,6 +71,15 @@ public class CustomerServiceTest {
         verify(customerRepository).findById(anyLong());
     }
 
+    @Test(expected = ResourceNotFoundException.class)
+    public void getCustomerByIdNotFound() throws Exception {
+        // when
+        when(customerRepository.findById(anyLong())).thenReturn(Optional.empty());
+
+        // show throw error
+        customerService.getCustomerById(1L);
+    }
+
     @Test
     public void createNewCustomer() throws Exception {
         // given
@@ -105,6 +115,15 @@ public class CustomerServiceTest {
         assertEquals(FIRST_NAME_1, savedCustomer.getFirstName());
         assertEquals(LAST_NAME_1, savedCustomer.getLastName());
         verify(customerRepository).save(any(Customer.class));
+    }
+
+    @Test(expected = ResourceNotFoundException.class)
+    public void patchCustomerNotFound() throws Exception {
+        // when
+        when(customerRepository.findById(anyLong())).thenReturn(Optional.empty());
+
+        // show throw error
+        customerService.patchCustomer(1L, new Customer());
     }
 
     @Test

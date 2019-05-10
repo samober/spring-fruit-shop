@@ -2,6 +2,7 @@ package com.ober.services;
 
 import com.ober.domain.Category;
 import com.ober.repositories.CategoryRepository;
+import com.ober.services.exceptions.ResourceNotFoundException;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -62,5 +63,14 @@ public class CategoryServiceTest {
         assertNotNull(categoryReturned);
         assertEquals(ID, categoryReturned.getId());
         assertEquals(NAME, categoryReturned.getName());
+    }
+
+    @Test(expected = ResourceNotFoundException.class)
+    public void getCategoryByNameNotFound() {
+        // when
+        when(categoryRepository.findByName(anyString())).thenReturn(null);
+
+        // should throw error
+        categoryService.getCategoryByName("Foo");
     }
 }

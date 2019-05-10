@@ -3,6 +3,7 @@ package com.ober.api.v1.controllers;
 import com.ober.api.v1.mappers.CategoryMapper;
 import com.ober.domain.Category;
 import com.ober.services.CategoryService;
+import com.ober.services.exceptions.ResourceNotFoundException;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -44,7 +45,10 @@ public class CategoryControllerTest {
 
         categoryController = new CategoryController(categoryService, categoryMapper);
 
-        mockMvc = MockMvcBuilders.standaloneSetup(categoryController).build();
+        mockMvc = MockMvcBuilders
+                .standaloneSetup(categoryController)
+                .setControllerAdvice(new RestResponseEntityExceptionHandler())
+                .build();
     }
 
     @Test
@@ -81,6 +85,16 @@ public class CategoryControllerTest {
                 .andExpect(jsonPath("$.name", equalTo(NAME_1)))
                 .andExpect(jsonPath("$.category_url", equalTo(CategoryController.BASE_URL + "/" + ID_1)));
         verify(categoryService, times(1)).getCategoryByName(anyString());
+    }
+
+    @Test
+    public void testGetByNameNotFound() throws Exception {
+        // when
+        when(categoryService.getCategoryByName(anyString())).thenThrow(ResourceNotFoundException.class);
+
+        mockMvc.perform(get(CategoryController.BASE_URL + "/foo")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
     }
 
 }

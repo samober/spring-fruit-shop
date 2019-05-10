@@ -4,6 +4,7 @@ import com.ober.api.v1.mappers.CustomerMapper;
 import com.ober.api.v1.model.CustomerDTO;
 import com.ober.domain.Customer;
 import com.ober.services.CustomerService;
+import com.ober.services.exceptions.ResourceNotFoundException;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -48,7 +49,10 @@ public class CustomerControllerTest extends AbstractRestControllerTest {
 
         customerController = new CustomerController(customerService, customerMapper);
 
-        mockMvc = MockMvcBuilders.standaloneSetup(customerController).build();
+        mockMvc = MockMvcBuilders
+                .standaloneSetup(customerController)
+                .setControllerAdvice(new RestResponseEntityExceptionHandler())
+                .build();
     }
 
     @Test
@@ -87,6 +91,17 @@ public class CustomerControllerTest extends AbstractRestControllerTest {
                 .andExpect(jsonPath("$.last_name", equalTo(LAST_NAME_1)))
                 .andExpect(jsonPath("$.customer_url", equalTo(CustomerController.BASE_URL + "/" + ID_1)));
         verify(customerService, times(1)).getCustomerById(anyLong());
+    }
+
+    @Test
+    public void testGetByIdNotFound() throws Exception {
+        // when
+        when(customerService.getCustomerById(anyLong())).thenThrow(ResourceNotFoundException.class);
+
+        // then
+        mockMvc.perform(get(CustomerController.BASE_URL + "/1")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
     }
 
     @Test
