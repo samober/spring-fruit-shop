@@ -14,8 +14,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Controller
-@RequestMapping("/api/v1/customers")
+@RequestMapping(CustomerController.BASE_URL)
 public class CustomerController {
+
+    public static final String BASE_URL = "/api/v1/customers";
 
     private final CustomerService customerService;
     private final CustomerMapper customerMapper;
@@ -30,6 +32,7 @@ public class CustomerController {
         List<CustomerDTO> customers = customerService.getAllCustomers()
                 .stream()
                 .map(customerMapper::customerToCustomerDTO)
+                .map(this::addCustomerUrl)
                 .collect(Collectors.toList());
         return new ResponseEntity<>(
                 new CustomerListDTO(customers),
@@ -40,14 +43,14 @@ public class CustomerController {
     @GetMapping("/{id}")
     public ResponseEntity<CustomerDTO> getCustomerById(@PathVariable Long id) {
         CustomerDTO customer = customerMapper.customerToCustomerDTO(customerService.getCustomerById(id));
-        return new ResponseEntity<>(customer, HttpStatus.OK);
+        return new ResponseEntity<>(addCustomerUrl(customer), HttpStatus.OK);
     }
 
     @PostMapping
     public ResponseEntity<CustomerDTO> createNewCustomer(@RequestBody CustomerDTO customerDTO) {
         Customer savedCustomer = customerService.createNewCustomer(customerMapper.customerDtoToCustomer(customerDTO));
         return new ResponseEntity<>(
-                customerMapper.customerToCustomerDTO(savedCustomer),
+                addCustomerUrl(customerMapper.customerToCustomerDTO(savedCustomer)),
                 HttpStatus.CREATED
         );
     }
@@ -56,7 +59,7 @@ public class CustomerController {
     public ResponseEntity<CustomerDTO> updateCustomer(@RequestBody CustomerDTO customerDTO, @PathVariable Long id) {
         Customer savedCustomer = customerService.saveCustomer(id, customerMapper.customerDtoToCustomer(customerDTO));
         return new ResponseEntity<>(
-                customerMapper.customerToCustomerDTO(savedCustomer),
+                addCustomerUrl(customerMapper.customerToCustomerDTO(savedCustomer)),
                 HttpStatus.OK
         );
     }
@@ -65,7 +68,7 @@ public class CustomerController {
     public ResponseEntity<CustomerDTO> patchCustomer(@RequestBody CustomerDTO customerDTO, @PathVariable Long id) {
         Customer updatedCustomer = customerService.patchCustomer(id, customerMapper.customerDtoToCustomer(customerDTO));
         return new ResponseEntity<>(
-                customerMapper.customerToCustomerDTO(updatedCustomer),
+                addCustomerUrl(customerMapper.customerToCustomerDTO(updatedCustomer)),
                 HttpStatus.OK
         );
     }
@@ -74,5 +77,10 @@ public class CustomerController {
     public ResponseEntity<Void> deleteCustomer(@PathVariable Long id) {
         customerService.deleteCustomerById(id);
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    private CustomerDTO addCustomerUrl(CustomerDTO customerDTO) {
+        customerDTO.setCustomerUrl(BASE_URL + "/" + customerDTO.getId());
+        return customerDTO;
     }
 }

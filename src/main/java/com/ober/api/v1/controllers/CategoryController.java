@@ -15,8 +15,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Controller
-@RequestMapping("/api/v1/categories")
+@RequestMapping(CategoryController.BASE_URL)
 public class CategoryController {
+
+    public static final String BASE_URL = "/api/v1/categories";
 
     private final CategoryService categoryService;
     private final CategoryMapper categoryMapper;
@@ -31,6 +33,7 @@ public class CategoryController {
         List<CategoryDTO> categories = categoryService.getAllCategories()
                 .stream()
                 .map(categoryMapper::categoryToCategoryDTO)
+                .map(this::addCategoryUrl)
                 .collect(Collectors.toList());
         return new ResponseEntity<CategoryListDTO>(
                 new CategoryListDTO(categories),
@@ -40,7 +43,12 @@ public class CategoryController {
     @GetMapping("/{name}")
     public ResponseEntity<CategoryDTO> getCategoryByName(@PathVariable String name) {
         CategoryDTO category = categoryMapper.categoryToCategoryDTO(categoryService.getCategoryByName(name));
-        return new ResponseEntity<CategoryDTO>(category, HttpStatus.OK);
+        return new ResponseEntity<CategoryDTO>(addCategoryUrl(category), HttpStatus.OK);
+    }
+
+    private CategoryDTO addCategoryUrl(CategoryDTO categoryDTO) {
+        categoryDTO.setCategoryUrl(BASE_URL + "/" + categoryDTO.getId());
+        return categoryDTO;
     }
 
 }
