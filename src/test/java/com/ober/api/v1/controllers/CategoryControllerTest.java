@@ -1,9 +1,10 @@
 package com.ober.api.v1.controllers;
 
 import com.ober.api.v1.mappers.CategoryMapper;
+import com.ober.api.v1.model.CategoryDTO;
 import com.ober.domain.Category;
-import com.ober.services.CategoryService;
-import com.ober.services.exceptions.ResourceNotFoundException;
+import com.ober.api.v1.services.CategoryService;
+import com.ober.api.v1.services.exceptions.ResourceNotFoundException;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -17,7 +18,6 @@ import java.util.List;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
-import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -30,8 +30,6 @@ public class CategoryControllerTest {
     private static final String NAME_1 = "Bob";
     private static final String NAME_2 = "Sam";
 
-    CategoryMapper categoryMapper = CategoryMapper.INSTANCE;
-
     @Mock
     CategoryService categoryService;
 
@@ -43,7 +41,7 @@ public class CategoryControllerTest {
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
 
-        categoryController = new CategoryController(categoryService, categoryMapper);
+        categoryController = new CategoryController(categoryService);
 
         mockMvc = MockMvcBuilders
                 .standaloneSetup(categoryController)
@@ -54,10 +52,10 @@ public class CategoryControllerTest {
     @Test
     public void testListCategories() throws Exception {
         // given
-        Category category1 = Category.builder().id(ID_1).name(NAME_1).build();
-        Category category2 = Category.builder().id(ID_2).name(NAME_2).build();
+        CategoryDTO category1 = CategoryDTO.builder().id(ID_1).name(NAME_1).build();
+        CategoryDTO category2 = CategoryDTO.builder().id(ID_2).name(NAME_2).build();
 
-        List<Category> categories = Arrays.asList(category1, category2);
+        List<CategoryDTO> categories = Arrays.asList(category1, category2);
 
         // when
         when(categoryService.getAllCategories()).thenReturn(categories);
@@ -73,7 +71,7 @@ public class CategoryControllerTest {
     @Test
     public void testGetByName() throws Exception {
         // given
-        Category category = Category.builder().id(ID_1).name(NAME_1).build();
+        CategoryDTO category = CategoryDTO.builder().id(ID_1).name(NAME_1).build();
 
         // when
         when(categoryService.getCategoryByName(anyString())).thenReturn(category);

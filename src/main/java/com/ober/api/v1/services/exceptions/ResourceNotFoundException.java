@@ -1,4 +1,4 @@
-package com.ober.services.exceptions;
+package com.ober.api.v1.services.exceptions;
 
 public class ResourceNotFoundException extends RuntimeException {
 

@@ -1,5 +1,9 @@
-package com.ober.services;
+package com.ober.api.v1.services;
 
+import com.ober.api.v1.mappers.VendorMapper;
+import com.ober.api.v1.model.VendorDTO;
+import com.ober.api.v1.services.VendorService;
+import com.ober.api.v1.services.VendorServiceImpl;
 import com.ober.bootstrap.Bootstrap;
 import com.ober.domain.Vendor;
 import com.ober.repositories.CategoryRepository;
@@ -29,6 +33,8 @@ public class VendorServiceIT {
     @Autowired
     VendorRepository vendorRepository;
 
+    VendorMapper vendorMapper = VendorMapper.INSTANCE;
+
     VendorService vendorService;
 
     @Before
@@ -40,7 +46,7 @@ public class VendorServiceIT {
         Bootstrap bootstrap = new Bootstrap(categoryRepository, customerRepository, vendorRepository);
         bootstrap.run();
 
-        vendorService = new VendorServiceImpl(vendorRepository);
+        vendorService = new VendorServiceImpl(vendorRepository, vendorMapper);
     }
 
     @Test
@@ -54,7 +60,7 @@ public class VendorServiceIT {
         // save the original name
         String originalName = originalVendor.getName();
 
-        Vendor vendor = new Vendor();
+        VendorDTO vendor = new VendorDTO();
         vendor.setName(updatedName);
 
         vendorService.patchVendor(id, vendor);

@@ -1,8 +1,12 @@
-package com.ober.services;
+package com.ober.api.v1.services;
 
+import com.ober.api.v1.mappers.CustomerMapper;
+import com.ober.api.v1.model.CustomerDTO;
+import com.ober.api.v1.services.CustomerService;
+import com.ober.api.v1.services.CustomerServiceImpl;
 import com.ober.domain.Customer;
 import com.ober.repositories.CustomerRepository;
-import com.ober.services.exceptions.ResourceNotFoundException;
+import com.ober.api.v1.services.exceptions.ResourceNotFoundException;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -23,6 +27,8 @@ public class CustomerServiceTest {
     private static final String FIRST_NAME_2 = "Sam";
     private static final String LAST_NAME_2 = "Axe";
 
+    CustomerMapper customerMapper = CustomerMapper.INSTANCE;
+
     CustomerService customerService;
 
     @Mock
@@ -32,7 +38,7 @@ public class CustomerServiceTest {
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
 
-        customerService = new CustomerServiceImpl(customerRepository);
+        customerService = new CustomerServiceImpl(customerRepository, customerMapper);
     }
 
     @Test
@@ -42,7 +48,7 @@ public class CustomerServiceTest {
 
         // when
         when(customerRepository.findAll()).thenReturn(customers);
-        List<Customer> customersReturned = customerService.getAllCustomers();
+        List<CustomerDTO> customersReturned = customerService.getAllCustomers();
 
         // then
         assertEquals(3, customersReturned.size());
@@ -61,7 +67,7 @@ public class CustomerServiceTest {
 
         // when
         when(customerRepository.findById(anyLong())).thenReturn(Optional.of(customer));
-        Customer customerReturned = customerService.getCustomerById(ID);
+        CustomerDTO customerReturned = customerService.getCustomerById(ID);
 
         // then
         assertNotNull(customerReturned);
@@ -84,10 +90,11 @@ public class CustomerServiceTest {
     public void createNewCustomer() throws Exception {
         // given
         Customer customer = Customer.builder().id(ID).firstName(FIRST_NAME_1).lastName(LAST_NAME_1).build();
+        CustomerDTO customerDTO = CustomerDTO.builder().firstName(FIRST_NAME_1).lastName(LAST_NAME_1).build();
 
         // when
         when(customerRepository.save(any())).thenReturn(customer);
-        Customer customerReturned = customerService.createNewCustomer(customer);
+        CustomerDTO customerReturned = customerService.createNewCustomer(customerDTO);
 
         // then
         assertNotNull(customerReturned);
@@ -105,10 +112,15 @@ public class CustomerServiceTest {
                 .firstName(FIRST_NAME_1)
                 .lastName(LAST_NAME_1)
                 .build();
+        CustomerDTO customerDTO = CustomerDTO.builder()
+                .id(ID)
+                .firstName(FIRST_NAME_1)
+                .lastName(LAST_NAME_1)
+                .build();
 
         // when
         when(customerRepository.save(any())).thenReturn(customer);
-        Customer savedCustomer = customerService.saveCustomer(ID, customer);
+        CustomerDTO savedCustomer = customerService.saveCustomer(ID, customerDTO);
 
         assertNotNull(savedCustomer);
         assertEquals(ID, savedCustomer.getId());
@@ -123,7 +135,7 @@ public class CustomerServiceTest {
         when(customerRepository.findById(anyLong())).thenReturn(Optional.empty());
 
         // show throw error
-        customerService.patchCustomer(1L, new Customer());
+        customerService.patchCustomer(1L, new CustomerDTO());
     }
 
     @Test

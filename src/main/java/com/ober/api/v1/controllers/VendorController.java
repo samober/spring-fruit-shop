@@ -4,7 +4,7 @@ import com.ober.api.v1.mappers.VendorMapper;
 import com.ober.api.v1.model.VendorDTO;
 import com.ober.api.v1.model.VendorListDTO;
 import com.ober.domain.Vendor;
-import com.ober.services.VendorService;
+import com.ober.api.v1.services.VendorService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,22 +18,16 @@ public class VendorController {
     public static final String BASE_URL = "/api/v1/vendors";
 
     private final VendorService vendorService;
-    private final VendorMapper vendorMapper;
 
-    public VendorController(VendorService vendorService, VendorMapper vendorMapper) {
+    public VendorController(VendorService vendorService) {
         this.vendorService = vendorService;
-        this.vendorMapper = vendorMapper;
     }
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public VendorListDTO getAllVendors() {
-        // get all vendors from vendor service
-        List<Vendor> vendors = vendorService.getAllVendors();
-        // convert vendors to vendor DTOs
-        List<VendorDTO> vendorDTOs = vendors
+        List<VendorDTO> vendorDTOs = vendorService.getAllVendors()
                 .stream()
-                .map(vendorMapper::vendorToVendorDTO)
                 .map(this::addVendorUrl)
                 .collect(Collectors.toList());
         // return
@@ -43,43 +37,25 @@ public class VendorController {
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public VendorDTO getVendorById(@PathVariable Long id) {
-        // get vendor from vendor service
-        Vendor vendor = vendorService.getVendorById(id);
-        // convert and add URL
-        return addVendorUrl(vendorMapper.vendorToVendorDTO(vendor));
+        return addVendorUrl(vendorService.getVendorById(id));
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public VendorDTO createNewVendor(@RequestBody VendorDTO vendorDTO) {
-        // convert to domain vendor
-        Vendor vendor = vendorMapper.vendorDTOToVendor(vendorDTO);
-        // save
-        Vendor savedVendor = vendorService.saveVendor(vendor);
-        // convert to DTO and add URL
-        return addVendorUrl(vendorMapper.vendorToVendorDTO(savedVendor));
+        return addVendorUrl(vendorService.saveVendor(vendorDTO));
     }
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public VendorDTO updateVendor(@RequestBody VendorDTO vendorDTO, @PathVariable Long id) {
-        // convert to domain Vendor
-        Vendor vendor = vendorMapper.vendorDTOToVendor(vendorDTO);
-        // save
-        Vendor savedVendor = vendorService.saveVendor(id, vendor);
-        // convert to DTO and add URL
-        return addVendorUrl(vendorMapper.vendorToVendorDTO(savedVendor));
+        return addVendorUrl(vendorService.saveVendor(id, vendorDTO));
     }
 
     @PatchMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public VendorDTO patchVendor(@RequestBody VendorDTO vendorDTO, @PathVariable Long id) {
-        // convert to domain Vendor
-        Vendor vendor = vendorMapper.vendorDTOToVendor(vendorDTO);
-        // patch
-        Vendor savedVendor = vendorService.patchVendor(id, vendor);
-        // convert to DTO and add URL
-        return addVendorUrl(vendorMapper.vendorToVendorDTO(savedVendor));
+        return addVendorUrl(vendorService.patchVendor(id, vendorDTO));
     }
 
     @DeleteMapping("/{id}")

@@ -3,8 +3,8 @@ package com.ober.api.v1.controllers;
 import com.ober.api.v1.mappers.VendorMapper;
 import com.ober.api.v1.model.VendorDTO;
 import com.ober.domain.Vendor;
-import com.ober.services.VendorService;
-import com.ober.services.exceptions.ResourceNotFoundException;
+import com.ober.api.v1.services.VendorService;
+import com.ober.api.v1.services.exceptions.ResourceNotFoundException;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -18,7 +18,6 @@ import java.util.List;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
-import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -28,8 +27,6 @@ public class VendorControllerTest extends AbstractRestControllerTest {
 
     private static final Long ID = 1L;
     private static final String NAME = "Fruit Shop";
-
-    VendorMapper vendorMapper = VendorMapper.INSTANCE;
 
     @Mock
     VendorService vendorService;
@@ -42,7 +39,7 @@ public class VendorControllerTest extends AbstractRestControllerTest {
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
 
-        vendorController = new VendorController(vendorService, vendorMapper);
+        vendorController = new VendorController(vendorService);
 
         mockMvc = MockMvcBuilders
                 .standaloneSetup(vendorController)
@@ -53,7 +50,7 @@ public class VendorControllerTest extends AbstractRestControllerTest {
     @Test
     public void testGetAllVendors() throws Exception {
         // given
-        List<Vendor> vendors = Arrays.asList(new Vendor(), new Vendor(), new Vendor());
+        List<VendorDTO> vendors = Arrays.asList(new VendorDTO(), new VendorDTO(), new VendorDTO());
 
         // when
         when(vendorService.getAllVendors()).thenReturn(vendors);
@@ -69,7 +66,7 @@ public class VendorControllerTest extends AbstractRestControllerTest {
     @Test
     public void testGetById() throws Exception {
         // given
-        Vendor vendor = Vendor
+        VendorDTO vendor = VendorDTO
                 .builder()
                 .id(ID)
                 .name(NAME)
@@ -105,7 +102,7 @@ public class VendorControllerTest extends AbstractRestControllerTest {
         VendorDTO vendor = new VendorDTO();
         vendor.setName(NAME);
 
-        Vendor returnVendor = new Vendor();
+        VendorDTO returnVendor = new VendorDTO();
         returnVendor.setId(ID);
         returnVendor.setName(NAME);
 
@@ -119,7 +116,7 @@ public class VendorControllerTest extends AbstractRestControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.name", equalTo(NAME)))
                 .andExpect(jsonPath("$.vendor_url", equalTo(VendorController.BASE_URL + "/" + ID)));
-        verify(vendorService, times(1)).saveVendor(any(Vendor.class));
+        verify(vendorService, times(1)).saveVendor(any(VendorDTO.class));
     }
 
     @Test
@@ -128,7 +125,7 @@ public class VendorControllerTest extends AbstractRestControllerTest {
         VendorDTO vendor = new VendorDTO();
         vendor.setName(NAME);
 
-        Vendor savedVendor = new Vendor();
+        VendorDTO savedVendor = new VendorDTO();
         savedVendor.setId(ID);
         savedVendor.setName(NAME);
 
@@ -142,7 +139,7 @@ public class VendorControllerTest extends AbstractRestControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name", equalTo(NAME)))
                 .andExpect(jsonPath("$.vendor_url", equalTo(VendorController.BASE_URL + "/" + ID)));
-        verify(vendorService, times(1)).saveVendor(anyLong(), any(Vendor.class));
+        verify(vendorService, times(1)).saveVendor(anyLong(), any(VendorDTO.class));
     }
 
     @Test
@@ -151,7 +148,7 @@ public class VendorControllerTest extends AbstractRestControllerTest {
         VendorDTO vendor = new VendorDTO();
         vendor.setName(NAME);
 
-        Vendor savedVendor = new Vendor();
+        VendorDTO savedVendor = new VendorDTO();
         savedVendor.setId(ID);
         savedVendor.setName(NAME);
 
@@ -165,7 +162,7 @@ public class VendorControllerTest extends AbstractRestControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name", equalTo(NAME)))
                 .andExpect(jsonPath("$.vendor_url", equalTo(VendorController.BASE_URL + "/" + ID)));
-        verify(vendorService, times(1)).patchVendor(anyLong(), any(Vendor.class));
+        verify(vendorService, times(1)).patchVendor(anyLong(), any(VendorDTO.class));
     }
 
     @Test

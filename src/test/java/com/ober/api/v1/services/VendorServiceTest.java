@@ -1,8 +1,12 @@
-package com.ober.services;
+package com.ober.api.v1.services;
 
+import com.ober.api.v1.mappers.VendorMapper;
+import com.ober.api.v1.model.VendorDTO;
+import com.ober.api.v1.services.VendorService;
+import com.ober.api.v1.services.VendorServiceImpl;
 import com.ober.domain.Vendor;
 import com.ober.repositories.VendorRepository;
-import com.ober.services.exceptions.ResourceNotFoundException;
+import com.ober.api.v1.services.exceptions.ResourceNotFoundException;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -20,6 +24,8 @@ public class VendorServiceTest {
     private static final Long ID = 1L;
     private static final String NAME = "Fresh Fruits";
 
+    VendorMapper vendorMapper = VendorMapper.INSTANCE;
+
     VendorService vendorService;
 
     @Mock
@@ -29,7 +35,7 @@ public class VendorServiceTest {
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
 
-        vendorService = new VendorServiceImpl(vendorRepository);
+        vendorService = new VendorServiceImpl(vendorRepository, vendorMapper);
     }
 
     @Test
@@ -39,7 +45,7 @@ public class VendorServiceTest {
 
         // when
         when(vendorRepository.findAll()).thenReturn(vendors);
-        List<Vendor> vendorsReturned = vendorService.getAllVendors();
+        List<VendorDTO> vendorsReturned = vendorService.getAllVendors();
 
         // then
         assertEquals(3, vendorsReturned.size());
@@ -57,7 +63,7 @@ public class VendorServiceTest {
 
         // when
         when(vendorRepository.findById(anyLong())).thenReturn(Optional.of(vendor));
-        Vendor vendorReturned = vendorService.getVendorById(ID);
+        VendorDTO vendorReturned = vendorService.getVendorById(ID);
 
         // then
         assertNotNull(vendorReturned);
@@ -83,10 +89,14 @@ public class VendorServiceTest {
                 .id(ID)
                 .name(NAME)
                 .build();
+        VendorDTO vendorDTO = VendorDTO
+                .builder()
+                .name(NAME)
+                .build();
 
         // when
         when(vendorRepository.save(any())).thenReturn(vendor);
-        Vendor vendorReturned = vendorService.saveVendor(vendor);
+        VendorDTO vendorReturned = vendorService.saveVendor(vendorDTO);
 
         // then
         assertNotNull(vendorReturned);
@@ -103,10 +113,14 @@ public class VendorServiceTest {
                 .id(ID)
                 .name(NAME)
                 .build();
+        VendorDTO vendorDTO = VendorDTO
+                .builder()
+                .name(NAME)
+                .build();
 
         // when
         when(vendorRepository.save(any())).thenReturn(vendor);
-        Vendor vendorReturned = vendorService.saveVendor(ID, vendor);
+        VendorDTO vendorReturned = vendorService.saveVendor(ID, vendorDTO);
 
         // then
         assertNotNull(vendorReturned);
@@ -121,7 +135,7 @@ public class VendorServiceTest {
         when(vendorRepository.findById(anyLong())).thenReturn(Optional.empty());
 
         // should throw error
-        vendorService.patchVendor(1L, new Vendor());
+        vendorService.patchVendor(1L, new VendorDTO());
     }
 
     @Test

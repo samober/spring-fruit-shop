@@ -1,5 +1,9 @@
-package com.ober.services;
+package com.ober.api.v1.services;
 
+import com.ober.api.v1.mappers.CustomerMapper;
+import com.ober.api.v1.model.CustomerDTO;
+import com.ober.api.v1.services.CustomerService;
+import com.ober.api.v1.services.CustomerServiceImpl;
 import com.ober.bootstrap.Bootstrap;
 import com.ober.domain.Customer;
 import com.ober.repositories.CategoryRepository;
@@ -29,6 +33,8 @@ public class CustomerServiceIT {
     @Autowired
     VendorRepository vendorRepository;
 
+    CustomerMapper customerMapper = CustomerMapper.INSTANCE;
+
     CustomerService customerService;
 
     @Before
@@ -40,7 +46,7 @@ public class CustomerServiceIT {
         Bootstrap bootstrap = new Bootstrap(categoryRepository, customerRepository, vendorRepository);
         bootstrap.run();
 
-        customerService = new CustomerServiceImpl(customerRepository);
+        customerService = new CustomerServiceImpl(customerRepository, customerMapper);
     }
 
     @Test
@@ -55,7 +61,7 @@ public class CustomerServiceIT {
         String originalFirstName = originalCustomer.getFirstName();
         String originalLastName = originalCustomer.getLastName();
 
-        Customer customer = new Customer();
+        CustomerDTO customer = new CustomerDTO();
         customer.setFirstName(updatedName);
 
         customerService.patchCustomer(id, customer);
@@ -80,7 +86,7 @@ public class CustomerServiceIT {
         String originalFirstName = originalCustomer.getFirstName();
         String originalLastName = originalCustomer.getLastName();
 
-        Customer customer = new Customer();
+        CustomerDTO customer = new CustomerDTO();
         customer.setLastName(updatedName);
 
         customerService.patchCustomer(id, customer);

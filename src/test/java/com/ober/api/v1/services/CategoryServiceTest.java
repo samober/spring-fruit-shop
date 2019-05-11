@@ -1,8 +1,12 @@
-package com.ober.services;
+package com.ober.api.v1.services;
 
+import com.ober.api.v1.mappers.CategoryMapper;
+import com.ober.api.v1.model.CategoryDTO;
+import com.ober.api.v1.services.CategoryService;
+import com.ober.api.v1.services.CategoryServiceImpl;
 import com.ober.domain.Category;
 import com.ober.repositories.CategoryRepository;
-import com.ober.services.exceptions.ResourceNotFoundException;
+import com.ober.api.v1.services.exceptions.ResourceNotFoundException;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -21,6 +25,8 @@ public class CategoryServiceTest {
     private static final Long ID = 2L;
     private static final String NAME = "Jimmy";
 
+    CategoryMapper categoryMapper = CategoryMapper.INSTANCE;
+
     CategoryService categoryService;
 
     @Mock
@@ -30,7 +36,7 @@ public class CategoryServiceTest {
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
 
-        categoryService = new CategoryServiceImpl(categoryRepository);
+        categoryService = new CategoryServiceImpl(categoryRepository, categoryMapper);
     }
 
     @Test
@@ -40,7 +46,7 @@ public class CategoryServiceTest {
 
         // when
         when(categoryRepository.findAll()).thenReturn(categories);
-        List<Category> categoriesReturned = categoryService.getAllCategories();
+        List<CategoryDTO> categoriesReturned = categoryService.getAllCategories();
 
         // then
         assertEquals(3, categoriesReturned.size());
@@ -57,7 +63,7 @@ public class CategoryServiceTest {
 
         // when
         when(categoryRepository.findByName(anyString())).thenReturn(category);
-        Category categoryReturned = categoryService.getCategoryByName(NAME);
+        CategoryDTO categoryReturned = categoryService.getCategoryByName(NAME);
 
         // then
         assertNotNull(categoryReturned);

@@ -4,10 +4,8 @@ import com.ober.api.v1.mappers.CustomerMapper;
 import com.ober.api.v1.model.CustomerDTO;
 import com.ober.api.v1.model.CustomerListDTO;
 import com.ober.domain.Customer;
-import com.ober.services.CustomerService;
+import com.ober.api.v1.services.CustomerService;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,11 +18,9 @@ public class CustomerController {
     public static final String BASE_URL = "/api/v1/customers";
 
     private final CustomerService customerService;
-    private final CustomerMapper customerMapper;
 
-    public CustomerController(CustomerService customerService, CustomerMapper customerMapper) {
+    public CustomerController(CustomerService customerService) {
         this.customerService = customerService;
-        this.customerMapper = customerMapper;
     }
 
     @GetMapping
@@ -32,7 +28,6 @@ public class CustomerController {
     public CustomerListDTO getAllCustomers() {
         List<CustomerDTO> customers = customerService.getAllCustomers()
                 .stream()
-                .map(customerMapper::customerToCustomerDTO)
                 .map(this::addCustomerUrl)
                 .collect(Collectors.toList());
         return new CustomerListDTO(customers);
@@ -41,29 +36,25 @@ public class CustomerController {
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public CustomerDTO getCustomerById(@PathVariable Long id) {
-        CustomerDTO customer = customerMapper.customerToCustomerDTO(customerService.getCustomerById(id));
-        return addCustomerUrl(customer);
+        return addCustomerUrl(customerService.getCustomerById(id));
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public CustomerDTO createNewCustomer(@RequestBody CustomerDTO customerDTO) {
-        Customer savedCustomer = customerService.createNewCustomer(customerMapper.customerDtoToCustomer(customerDTO));
-        return addCustomerUrl(customerMapper.customerToCustomerDTO(savedCustomer));
+        return addCustomerUrl(customerService.createNewCustomer(customerDTO));
     }
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public CustomerDTO updateCustomer(@RequestBody CustomerDTO customerDTO, @PathVariable Long id) {
-        Customer savedCustomer = customerService.saveCustomer(id, customerMapper.customerDtoToCustomer(customerDTO));
-        return addCustomerUrl(customerMapper.customerToCustomerDTO(savedCustomer));
+        return addCustomerUrl(customerService.saveCustomer(id, customerDTO));
     }
 
     @PatchMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public CustomerDTO patchCustomer(@RequestBody CustomerDTO customerDTO, @PathVariable Long id) {
-        Customer updatedCustomer = customerService.patchCustomer(id, customerMapper.customerDtoToCustomer(customerDTO));
-        return addCustomerUrl(customerMapper.customerToCustomerDTO(updatedCustomer));
+        return addCustomerUrl(customerService.patchCustomer(id, customerDTO));
     }
 
     @DeleteMapping("/{id}")

@@ -3,8 +3,8 @@ package com.ober.api.v1.controllers;
 import com.ober.api.v1.mappers.CustomerMapper;
 import com.ober.api.v1.model.CustomerDTO;
 import com.ober.domain.Customer;
-import com.ober.services.CustomerService;
-import com.ober.services.exceptions.ResourceNotFoundException;
+import com.ober.api.v1.services.CustomerService;
+import com.ober.api.v1.services.exceptions.ResourceNotFoundException;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -18,7 +18,6 @@ import java.util.List;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
-import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -34,8 +33,6 @@ public class CustomerControllerTest extends AbstractRestControllerTest {
     private static final String LAST_NAME_1 = "Tester";
     private static final String LAST_NAME_2 = "Fisher";
 
-    CustomerMapper customerMapper = CustomerMapper.INSTANCE;
-
     @Mock
     CustomerService customerService;
 
@@ -47,7 +44,7 @@ public class CustomerControllerTest extends AbstractRestControllerTest {
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
 
-        customerController = new CustomerController(customerService, customerMapper);
+        customerController = new CustomerController(customerService);
 
         mockMvc = MockMvcBuilders
                 .standaloneSetup(customerController)
@@ -58,7 +55,7 @@ public class CustomerControllerTest extends AbstractRestControllerTest {
     @Test
     public void testGetAllCustomers() throws Exception {
         // given
-        List<Customer> customers = Arrays.asList(new Customer(), new Customer(), new Customer());
+        List<CustomerDTO> customers = Arrays.asList(new CustomerDTO(), new CustomerDTO(), new CustomerDTO());
 
         // when
         when(customerService.getAllCustomers()).thenReturn(customers);
@@ -74,7 +71,7 @@ public class CustomerControllerTest extends AbstractRestControllerTest {
     @Test
     public void testGetById() throws Exception {
         // given
-        Customer customer = Customer.builder()
+        CustomerDTO customer = CustomerDTO.builder()
                 .id(ID_1)
                 .firstName(FIRST_NAME_1)
                 .lastName(LAST_NAME_1)
@@ -111,7 +108,7 @@ public class CustomerControllerTest extends AbstractRestControllerTest {
         customer.setFirstName(FIRST_NAME_1);
         customer.setLastName(LAST_NAME_1);
 
-        Customer returnCustomer = new Customer();
+        CustomerDTO returnCustomer = new CustomerDTO();
         returnCustomer.setId(ID_1);
         returnCustomer.setFirstName(FIRST_NAME_1);
         returnCustomer.setLastName(LAST_NAME_1);
@@ -127,7 +124,7 @@ public class CustomerControllerTest extends AbstractRestControllerTest {
                 .andExpect(jsonPath("$.first_name", equalTo(FIRST_NAME_1)))
                 .andExpect(jsonPath("$.last_name", equalTo(LAST_NAME_1)))
                 .andExpect(jsonPath("$.customer_url", equalTo(CustomerController.BASE_URL + "/" + ID_1)));
-        verify(customerService, times(1)).createNewCustomer(any(Customer.class));
+        verify(customerService, times(1)).createNewCustomer(any(CustomerDTO.class));
     }
 
     @Test
@@ -137,14 +134,14 @@ public class CustomerControllerTest extends AbstractRestControllerTest {
         customer.setFirstName(FIRST_NAME_1);
         customer.setLastName(LAST_NAME_1);
 
-        Customer savedCustomer = Customer.builder()
+        CustomerDTO savedCustomer = CustomerDTO.builder()
                 .id(ID_1)
                 .firstName(FIRST_NAME_1)
                 .lastName(LAST_NAME_1)
                 .build();
 
         // when
-        when(customerService.saveCustomer(anyLong(), any(Customer.class))).thenReturn(savedCustomer);
+        when(customerService.saveCustomer(anyLong(), any(CustomerDTO.class))).thenReturn(savedCustomer);
 
         // then
         mockMvc.perform(put(CustomerController.BASE_URL + "/" + ID_1)
@@ -154,7 +151,7 @@ public class CustomerControllerTest extends AbstractRestControllerTest {
                 .andExpect(jsonPath("$.first_name", equalTo(FIRST_NAME_1)))
                 .andExpect(jsonPath("$.last_name", equalTo(LAST_NAME_1)))
                 .andExpect(jsonPath("$.customer_url", equalTo(CustomerController.BASE_URL + "/" + ID_1)));
-        verify(customerService).saveCustomer(anyLong(), any(Customer.class));
+        verify(customerService).saveCustomer(anyLong(), any(CustomerDTO.class));
     }
 
     @Test
@@ -163,13 +160,13 @@ public class CustomerControllerTest extends AbstractRestControllerTest {
         CustomerDTO customer = new CustomerDTO();
         customer.setFirstName(FIRST_NAME_1);
 
-        Customer returnCustomer = new Customer();
+        CustomerDTO returnCustomer = new CustomerDTO();
         returnCustomer.setId(ID_1);
         returnCustomer.setFirstName(customer.getFirstName());
         returnCustomer.setLastName(LAST_NAME_1);
 
         // when
-        when(customerService.patchCustomer(anyLong(), any(Customer.class))).thenReturn(returnCustomer);
+        when(customerService.patchCustomer(anyLong(), any(CustomerDTO.class))).thenReturn(returnCustomer);
 
         // then
         mockMvc.perform(patch(CustomerController.BASE_URL + "/" + ID_1)
@@ -179,7 +176,7 @@ public class CustomerControllerTest extends AbstractRestControllerTest {
                 .andExpect(jsonPath("$.first_name", equalTo(FIRST_NAME_1)))
                 .andExpect(jsonPath("$.last_name", equalTo(LAST_NAME_1)))
                 .andExpect(jsonPath("$.customer_url", equalTo(CustomerController.BASE_URL + "/" + ID_1)));
-        verify(customerService, times(1)).patchCustomer(anyLong(), any(Customer.class));
+        verify(customerService, times(1)).patchCustomer(anyLong(), any(CustomerDTO.class));
     }
 
     @Test

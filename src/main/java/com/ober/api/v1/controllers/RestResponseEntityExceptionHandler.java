@@ -1,6 +1,6 @@
 package com.ober.api.v1.controllers;
 
-import com.ober.services.exceptions.ResourceNotFoundException;
+import com.ober.api.v1.services.exceptions.ResourceNotFoundException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
