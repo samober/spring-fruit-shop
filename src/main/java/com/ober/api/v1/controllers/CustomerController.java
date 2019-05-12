@@ -5,12 +5,14 @@ import com.ober.api.v1.model.CustomerDTO;
 import com.ober.api.v1.model.CustomerListDTO;
 import com.ober.domain.Customer;
 import com.ober.api.v1.services.CustomerService;
+import io.swagger.annotations.Api;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Api(description = "This is my Customer Controller")
 @RestController
 @RequestMapping(CustomerController.BASE_URL)
 public class CustomerController {
